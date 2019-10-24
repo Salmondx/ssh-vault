@@ -5,6 +5,11 @@ Lightweight utility for ssh connections management
 ## How it works
 It just parses and modifies `~/.ssh/config` file. You can continue to use tools that you like and just use this wrapper to add or remove connections from your ssh config file.
 
+## Install
+```sh
+composer global require salmondx/ssh-vault
+```
+
 ## How to use
 ### Add Host
 ```sh
