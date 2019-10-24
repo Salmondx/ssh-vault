@@ -12,6 +12,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class AddCommand extends Command
 {
+    private const DEFAULT_PORT = 22;
+
     protected static $defaultName = 'add';
 
     protected function configure()
@@ -30,7 +32,7 @@ class AddCommand extends Command
         $address = $io->ask('Host address (ip or dns)', null, $this->validateNotEmpty());
         $port = $io->ask(
             'Port',
-            22,
+            self::DEFAULT_PORT,
             function ($number) {
                 if (!is_numeric($number)) {
                     throw new \RuntimeException('You must type a number.');
@@ -41,11 +43,11 @@ class AddCommand extends Command
         );
         $user = $io->ask(
             'Username (<comment>none</comment> if empty)',
-            $lastHost ? $lastHost->getParameter('User') : ''
+            $lastHost ? $lastHost->getParameter('User') : null
         );
         $identityFile = $io->ask(
             'Identity file location (<comment>none</comment> if empty)',
-            $lastHost ? $lastHost->getParameter('IdentityFile') : '',
+            $lastHost ? $lastHost->getParameter('IdentityFile') : null,
             $this->validateFileExists()
         );
         $forwardAgent = $io->confirm(
@@ -55,9 +57,11 @@ class AddCommand extends Command
 
         $host = new Host($name);
         $host->addParameter('HostName', $address);
-        $host->addParameter('Port', $port);
+        if ($port != self::DEFAULT_PORT) {
+            $host->addParameter('Port', $port);
+        }
         if (!$this->isNone($user)) {
-            $host->addParameter('Username', $user);
+            $host->addParameter('User', $user);
         }
         if (!$this->isNone($identityFile)) {
             $host->addParameter('IdentityFile', $identityFile);
@@ -86,12 +90,13 @@ class AddCommand extends Command
     private function isNone($value)
     {
         $value = strtolower($value);
-        return $value == 'none' || $value == 'no' || $value == 0;
+        return $value == 'none' || $value == 'no' || (is_numeric($value) && $value == 0) || $value == '';
     }
 
     private function validateFileExists()
     {
         return function ($path) {
+            $path = $this->replaceTilde($path);
             if (!$this->isNone($path) && !file_exists($path)) {
                 throw new RuntimeException("$path path not exists");
             }
@@ -107,5 +112,10 @@ class AddCommand extends Command
             }
             return $value;
         };
+    }
+
+    private function replaceTilde($path)
+    {
+        return str_replace('~', getenv('HOME'), $path);
     }
 }
