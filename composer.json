@@ -1,0 +1,22 @@
+{
+    "name": "salmondx/ssh-vault",
+    "description": "Lightweight utility for ssh connections management",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "salmondx",
+            "email": "goldagleb@gmail.com"
+        }
+    ],
+    "require": {
+        "symfony/console": "^4.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "bin": [
+        "ssh-vault"
+    ]
+}
