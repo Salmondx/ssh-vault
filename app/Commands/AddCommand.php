@@ -81,7 +81,10 @@ class AddCommand extends Command
         }
 
         $hosts = $sshConfig->hosts();
-        return $hosts[array_key_last($hosts)];
+        if (count($hosts) == 0) {
+            return null;
+        }
+        return $hosts[count($hosts) - 1];
     }
 
     /**
